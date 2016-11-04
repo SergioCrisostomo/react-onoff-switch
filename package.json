@@ -1,6 +1,6 @@
 {
   "name": "react-onoff-switch",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "React on-off switch component",
   "main": "index.js",
   "scripts": {
@@ -24,5 +24,13 @@
   },
   "dependencies": {
     "react": "^15.3.2"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SergioCrisostomo/react-onoff-switch.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SergioCrisostomo/react-onoff-switch/issues"
+  },
+  "homepage": "https://github.com/SergioCrisostomo/react-onoff-switch#readme"
 }

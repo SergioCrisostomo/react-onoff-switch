@@ -9,7 +9,7 @@ React component, on-off sliding button to keep track of a user choice or state.
 
 ### Usage
 
-	import OnOff from './index.js'
+	import OnOff from 'react-onoff-switch'
 	ReactDOM.render(
 		<OnOff onChange={(value) => console.log('New value is:', value)}/>,
 		document.getElementById('app')
@@ -48,13 +48,13 @@ React component, on-off sliding button to keep track of a user choice or state.
         <tr>
             <td>buttonColor</td>
             <td>Stringe</td>
-            <td>'#FFFFFF'</td>
+            <td>'#FFFFFF' (white)</td>
             <td>Button color</td>
         </tr>
         <tr>
             <td>passiveColor</td>
             <td>Stringe</td>
-            <td>'#FFFFFF'</td>
+            <td>'#FFFFFF' (white)</td>
             <td>Passive background color</td>
         </tr>
         <tr>

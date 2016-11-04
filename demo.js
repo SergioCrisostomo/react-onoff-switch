@@ -7,7 +7,7 @@ const reporter = who => val => stateDiv.innerHTML = `${who} changed value to ${v
 
 ReactDOM.render(
 	<div>
-		<OnOff onChange={reporter('Blue button')} activeColor={'#CCE'} on={true}/>
+		<OnOff onChange={reporter('Blue button')} activeColor={'#CCE'} initialValue={true}/>
 		<p/>
 		<OnOff onChange={reporter('Green button')}/>
 	</div>,

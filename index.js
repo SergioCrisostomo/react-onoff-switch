@@ -30,7 +30,7 @@ export default class OnOff extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			on: !!props.on, // false if not set
+			on: !!props.initialValue, // false if not set
 			width: props.with || 100,
 			buttonColor: props.buttonColor || '#FFFFFF',
 			passiveColor: props.passiveColor || '#FFFFFF',

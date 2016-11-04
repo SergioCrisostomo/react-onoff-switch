@@ -70,7 +70,7 @@
 	_reactDom2.default.render(React.createElement(
 		'div',
 		null,
-		React.createElement(_index2.default, { onChange: reporter('Blue button'), activeColor: '#CCE', on: true }),
+		React.createElement(_index2.default, { onChange: reporter('Blue button'), activeColor: '#CCE', initialValue: true }),
 		React.createElement('p', null),
 		React.createElement(_index2.default, { onChange: reporter('Green button') })
 	), document.getElementById('app'));
@@ -20899,7 +20899,7 @@
 			var _this = _possibleConstructorReturn(this, (OnOff.__proto__ || Object.getPrototypeOf(OnOff)).call(this, props));
 
 			_this.state = {
-				on: !!props.on, // false if not set
+				on: !!props.initialValue, // false if not set
 				width: props.with || 100,
 				buttonColor: props.buttonColor || '#FFFFFF',
 				passiveColor: props.passiveColor || '#FFFFFF',

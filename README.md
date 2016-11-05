@@ -2,7 +2,7 @@
 # OnOff switch button
 
 React component, on-off sliding button to keep track of a user choice or state.
-	
+
 ![React on off switch button](https://snag.gy/j1rx9d.jpg)
 
 	npm install react-onoff-switch
@@ -17,10 +17,10 @@ React component, on-off sliding button to keep track of a user choice or state.
 		<OnOff onChange={(value) => console.log('New value is:', value)}/>,
 		document.getElementById('app')
 	);
-	
+
 ### Demo
 
-Simple [demo example here](https://rawgit.com/SergioCrisostomo/react-onoff-switch/master/demo.html).
+Simple [demo example here](https://rawgit.com/SergioCrisostomo/react-onoff-switch/master/demo/demo.html).
 
 ### props
 

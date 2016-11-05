@@ -1,6 +1,6 @@
 
 import ReactDOM from 'react-dom';
-import OnOff from './index.js'
+import OnOff from '../index.js'
 
 const stateDiv = document.getElementById('state');
 const reporter = who => val => stateDiv.innerHTML = `${who} changed value to ${val}!`;

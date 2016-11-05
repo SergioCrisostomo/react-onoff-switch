@@ -1,6 +1,6 @@
 {
   "name": "react-onoff-switch",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "React on-off switch component",
   "main": "index.js",
   "scripts": {

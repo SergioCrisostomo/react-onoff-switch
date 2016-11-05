@@ -12,8 +12,12 @@ export default class OnOff extends React.Component {
 			passiveColor: props.passiveColor || '#FFFFFF',
 			activeColor: props.activeColor || '#13BF11'
 		};
+
 		this.handleChange = this.handleChange.bind(this);
 		this.onChange = props.onChange || (() => {});
+		this.onPointerDown = this.onPointerDown.bind(this);
+		this.onDrag = this.onDrag.bind(this);
+		this.onDragEnd = this.onDragEnd.bind(this);
 	}
 
 	handleChange() {
@@ -21,6 +25,35 @@ export default class OnOff extends React.Component {
 			{on: !this.state.on},
 			() => this.onChange(this.state.on) // callback to parent Component
 		);
+	}
+
+	getPointerCoords(e){
+		return {
+			x: e.pageX || e.touches[0].pageX,
+			y: e.pageY || e.touches[0].pageY
+		};
+	}
+
+	onPointerDown(e){
+		this.touchDown = this.getPointerCoords(e.nativeEvent).x - parseInt(e.target.style.left, 10);
+		window.addEventListener('ontouchend' in global ? 'touchend' : 'mouseup', this.onDragEnd);
+	}
+
+	onDrag(e){
+		if (!this.touchDown) return;
+		e.preventDefault();
+		const positionNow = this.getPointerCoords(e.nativeEvent).x;
+		let diff = positionNow - this.touchDown;
+		const max = 0.6 * this.state.width;
+		if (diff < 0) diff = 0;
+		else if (diff > max) diff = max;
+
+		e.target.style.left = diff + 'px';
+	}
+
+	onDragEnd(e){
+		window.removeEventListener('ontouchend' in global ? 'touchend' : 'mouseup', this.onDragEnd);
+		this.touchDown = null;
 	}
 
 	render() {
@@ -47,10 +80,19 @@ export default class OnOff extends React.Component {
 		}, this.state.width);
 
 		return (
-			<div onClick={this.handleChange} style={{position: 'relative', height: 0.6 * this.state.width}}>
+			<div
+				onClick={this.handleChange}
+				style={{position: 'relative', height: 0.6 * this.state.width}}
+				>
 				<div style={active}/>
 				<div style={passive}/>
-				<div style={button}/>
+				<div
+					onMouseMove={this.onDrag}
+					onTouchMove={this.onDrag}
+					onTouchStart={this.onPointerDown}
+					onMouseDown={this.onPointerDown}
+					style={button}/
+					>
 			</div>
 		)
 	}

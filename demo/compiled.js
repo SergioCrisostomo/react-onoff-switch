@@ -20857,6 +20857,8 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
+	var _styles = __webpack_require__(173);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -20864,31 +20866,6 @@
 	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var grey = '#CCC';
-	var offBackground = {
-		top: 0,
-		boxShadow: 'inset 0 0 0px 1px ' + grey,
-		height: 0.6,
-		width: 1
-	};
-
-	var onBackground = {
-		top: 0,
-		height: 0.6
-	};
-
-	var buttonStyle = {
-		height: 0.6,
-		width: 0.6,
-		top: 0
-	};
-
-	var commonStyles = {
-		position: 'absolute',
-		borderRadius: 0.3,
-		transition: '0.1s ease-in-out'
-	};
 
 	var OnOff = function (_React$Component) {
 		_inherits(OnOff, _React$Component);
@@ -20898,63 +20875,116 @@
 
 			var _this = _possibleConstructorReturn(this, (OnOff.__proto__ || Object.getPrototypeOf(OnOff)).call(this, props));
 
+			var active = !!props.initialValue;
 			_this.state = {
-				on: !!props.initialValue, // false if not set
+				on: active, // false if not set
 				width: props.with || 100,
+				activeColorWidth: active ? 1 : 0.6,
+				buttonPosition: active ? 0.4 : 0,
 				buttonColor: props.buttonColor || '#FFFFFF',
 				passiveColor: props.passiveColor || '#FFFFFF',
 				activeColor: props.activeColor || '#13BF11'
 			};
+
 			_this.handleChange = _this.handleChange.bind(_this);
 			_this.onChange = props.onChange || function () {};
+			_this.onPointerDown = _this.onPointerDown.bind(_this);
+			_this.onDrag = _this.onDrag.bind(_this);
+			_this.onDragEnd = _this.onDragEnd.bind(_this);
 			return _this;
 		}
 
 		_createClass(OnOff, [{
 			key: 'handleChange',
-			value: function handleChange() {
+			value: function handleChange(state) {
 				var _this2 = this;
 
-				this.setState({ on: !this.state.on }, function () {
+				var val = typeof state == 'boolean' ? state : !this.state.on;
+				this.setState({
+					on: val,
+					buttonPosition: val ? 0.4 : 0,
+					activeColorWidth: val ? 1 : 0.6
+				}, function () {
 					return _this2.onChange(_this2.state.on);
 				} // callback to parent Component
 				);
 			}
 		}, {
-			key: 'setStyles',
-			value: function setStyles(obj) {
-				var styles = _extends({}, obj, commonStyles);
-				for (var key in styles) {
-					if (typeof styles[key] == 'number') styles[key] = this.state.width * styles[key] + 'px';
-				}
-				return styles;
+			key: 'getPointerCoords',
+			value: function getPointerCoords(e) {
+				return {
+					x: e.pageX || e.touches[0].pageX,
+					y: e.pageY || e.touches[0].pageY
+				};
+			}
+		}, {
+			key: 'onPointerDown',
+			value: function onPointerDown(e) {
+				this.touchDown = this.getPointerCoords(e.nativeEvent).x - parseInt(e.target.style.left, 10);
+				window.addEventListener('ontouchend' in window ? 'touchend' : 'mouseup', this.onDragEnd);
+				if ('onmouseout' in window) e.target.addEventListener('mouseout', this.onDragEnd);
+			}
+		}, {
+			key: 'onDrag',
+			value: function onDrag(e) {
+				e.preventDefault();
+				if (!this.touchDown) return;else this.dragged = true;
+
+				var positionNow = this.getPointerCoords(e.nativeEvent).x;
+				var diff = (positionNow - this.touchDown) / this.state.width;
+				// o.4 and 0.6 are related to proportions where 1 is the width
+				var max = 0.4;
+				if (diff < 0) diff = 0;else if (diff > max) diff = max;
+				var pos = 0.6 + diff;
+
+				this.setState({
+					buttonPosition: diff,
+					activeColorWidth: pos
+				});
+			}
+		}, {
+			key: 'onDragEnd',
+			value: function onDragEnd(e) {
+				window.removeEventListener('ontouchend' in window ? 'touchend' : 'mouseup', this.onDragEnd);
+				if ('onmouseout' in window) e.target.removeEventListener('mouseout', this.onDragEnd);
+				var newState = this.dragged ? this.state.buttonPosition > 0.2 : !this.state.on;
+				this.handleChange(newState);
+				this.touchDown = this.dragged = null;
 			}
 		}, {
 			key: 'render',
 			value: function render() {
 				var on = this.state.on;
 
-				var active = this.setStyles(_extends({}, onBackground, {
-					width: on ? 1 : 0.6,
+				var active = (0, _styles.setStyles)(_extends({}, _styles.onBackground, {
+					width: this.state.activeColorWidth,
 					background: this.state.activeColor
-				}));
-				var passive = this.setStyles(_extends({}, offBackground, {
-					width: on ? 0.6 : 1,
-					left: on ? 0.4 : 0,
+				}), this.state.width);
+
+				var passive = (0, _styles.setStyles)(_extends({}, _styles.offBackground, {
 					background: this.state.passiveColor
-				}));
-				var button = this.setStyles(_extends({}, buttonStyle, {
-					background: this.state.buttonColor,
-					left: on ? 0.4 : 0,
-					boxShadow: 'inset 0 0 0 1px ' + (on ? this.state.activeColor : grey) + ', 0 2px 4px ' + grey
-				}));
+				}), this.state.width);
+
+				var button = (0, _styles.setStyles)(_extends({}, _styles.buttonStyle, {
+					left: this.state.buttonPosition,
+					boxShadow: 'inset 0 0 0 1px ' + (on ? this.state.activeColor : _styles.grey) + ', 0 2px 4px ' + _styles.grey,
+					background: this.state.buttonColor
+				}), this.state.width);
 
 				return _react2.default.createElement(
 					'div',
-					{ onClick: this.handleChange, style: { position: 'relative', height: 0.6 * this.state.width } },
-					_react2.default.createElement('div', { style: active }),
+					{
+						/*onClick={this.handleChange}*/
+						style: { position: 'relative', height: 0.6 * this.state.width }
+					},
 					_react2.default.createElement('div', { style: passive }),
-					_react2.default.createElement('div', { style: button })
+					_react2.default.createElement('div', { style: active }),
+					_react2.default.createElement('div', {
+						onMouseMove: this.onDrag,
+						onTouchMove: this.onDrag,
+						onTouchStart: this.onPointerDown,
+						onMouseDown: this.onPointerDown,
+						style: button })
 				);
 			}
 		}]);
@@ -21568,6 +21598,57 @@
 
 	module.exports = onlyChild;
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
+
+/***/ },
+/* 173 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	var grey = '#CCC';
+
+	var offBackground = {
+		top: 0,
+		boxShadow: 'inset 0 0 0px 1px ' + grey,
+		height: 0.6,
+		left: 0,
+		width: 1
+	};
+
+	var onBackground = {
+		top: 0,
+		height: 0.6
+	};
+
+	var buttonStyle = {
+		height: 0.6,
+		width: 0.6,
+		top: 0
+	};
+
+	var commonStyles = {
+		position: 'absolute',
+		borderRadius: 0.3,
+		transition: '0.1s ease-in-out'
+	};
+
+	var setStyles = function setStyles(obj, width) {
+		var styles = _extends({}, obj, commonStyles);
+		for (var key in styles) {
+			if (typeof styles[key] == 'number') styles[key] = width * styles[key] + 'px';
+		}
+		return styles;
+	};
+
+	module.exports = {
+		grey: grey,
+		offBackground: offBackground,
+		onBackground: onBackground,
+		buttonStyle: buttonStyle,
+		setStyles: setStyles
+	};
 
 /***/ }
 /******/ ]);

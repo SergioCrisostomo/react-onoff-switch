@@ -5,7 +5,8 @@ const offBackground = {
 	top: 0,
     boxShadow: `inset 0 0 0px 1px ${grey}`,
     height: 0.6,
-    width: 1
+	left: 0,
+	width: 1,
 }
 
 const onBackground = {

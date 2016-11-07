@@ -2,18 +2,28 @@
 import React from 'react';
 import {grey, offBackground, onBackground, buttonStyle, setStyles} from './styles.js';
 
+const componentDefaults = {
+	width: 100,
+	buttonColor: '#FFFFFF',
+	passiveColor: '#FFFFFF',
+	activeColor: '#13BF11'
+}
+
+const stopEvent = e => {
+	e.preventDefault();
+	e.stopPropagation();
+}
+
 export default class OnOff extends React.Component {
 	constructor(props) {
 		super(props);
 		const active = !!props.initialValue;
 		this.state = {
+			...componentDefaults,
+			...props,
 			on: active, // false if not set
-			width: props.with || 100,
 			activeColorWidth: active ? 1 : 0.6,
 			buttonPosition: active ? 0.4 : 0,
-			buttonColor: props.buttonColor || '#FFFFFF',
-			passiveColor: props.passiveColor || '#FFFFFF',
-			activeColor: props.activeColor || '#13BF11'
 		};
 
 		this.handleChange = this.handleChange.bind(this);
@@ -35,29 +45,29 @@ export default class OnOff extends React.Component {
 	}
 
 	getPointerCoords(e){
-		return {
-			x: e.pageX || e.touches[0].pageX,
-			y: e.pageY || e.touches[0].pageY
-		};
+		return e.pageX || e.touches[0].pageX;
 	}
 
 	onPointerDown(e){
-		this.touchDown = this.getPointerCoords(e.nativeEvent).x - parseInt(e.target.style.left, 10);
+		stopEvent(e);
+		this.touchDown = this.getPointerCoords(e.nativeEvent) - parseInt(e.target.style.left, 10);
 		window.addEventListener('ontouchend' in window ? 'touchend' : 'mouseup', this.onDragEnd);
-		if ('onmouseout' in window) e.target.addEventListener('mouseout', this.onDragEnd);
 	}
 
 	onDrag(e){
-		e.preventDefault();
 		if (!this.touchDown) return;
 		else this.dragged = true;
+		stopEvent(e);
 
-		const positionNow = this.getPointerCoords(e.nativeEvent).x;
+		// 0.4 and 0.6 are related to proportions where 1 is the width
+		// 0.4 is the most left point of the buttonPosition
+		// 0.6 is the most right point, so the active color fills the whole background behind the button
+
+		const positionNow = this.getPointerCoords(e.nativeEvent);
 		let diff = (positionNow - this.touchDown) / this.state.width;
-		// o.4 and 0.6 are related to proportions where 1 is the width
-		const max = 0.4;
+		const maxDragDistance = 0.4;
 		if (diff < 0) diff = 0;
-		else if (diff > max) diff = max;
+		else if (diff > maxDragDistance) diff = maxDragDistance;
 		const pos = 0.6 + diff;
 
 		this.setState({
@@ -67,8 +77,10 @@ export default class OnOff extends React.Component {
 	}
 
 	onDragEnd(e){
+		stopEvent(e);
+		if (!this.touchDown) return;
+
 		window.removeEventListener('ontouchend' in window ? 'touchend' : 'mouseup', this.onDragEnd);
-		if ('onmouseout' in window) e.target.removeEventListener('mouseout', this.onDragEnd);
 		const newState = this.dragged ? this.state.buttonPosition > 0.2 : !this.state.on;
 		this.handleChange(newState);
 		this.touchDown = this.dragged = null;
@@ -96,10 +108,7 @@ export default class OnOff extends React.Component {
 		}, this.state.width);
 
 		return (
-			<div
-				/*onClick={this.handleChange}*/
-				style={{position: 'relative', height: 0.6 * this.state.width}}
-				>
+			<div style={{position: 'relative', height: 0.6 * this.state.width}}>
 				<div style={passive}/>
 				<div style={active}/>
 				<div
@@ -107,6 +116,7 @@ export default class OnOff extends React.Component {
 					onTouchMove={this.onDrag}
 					onTouchStart={this.onPointerDown}
 					onMouseDown={this.onPointerDown}
+					onMouseOut={this.onDragEnd}
 					style={button}/
 					>
 			</div>

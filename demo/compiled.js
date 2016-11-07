@@ -20867,6 +20867,18 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+	var componentDefaults = {
+		width: 100,
+		buttonColor: '#FFFFFF',
+		passiveColor: '#FFFFFF',
+		activeColor: '#13BF11'
+	};
+
+	var stopEvent = function stopEvent(e) {
+		e.preventDefault();
+		e.stopPropagation();
+	};
+
 	var OnOff = function (_React$Component) {
 		_inherits(OnOff, _React$Component);
 
@@ -20876,15 +20888,11 @@
 			var _this = _possibleConstructorReturn(this, (OnOff.__proto__ || Object.getPrototypeOf(OnOff)).call(this, props));
 
 			var active = !!props.initialValue;
-			_this.state = {
+			_this.state = _extends({}, componentDefaults, props, {
 				on: active, // false if not set
-				width: props.with || 100,
 				activeColorWidth: active ? 1 : 0.6,
-				buttonPosition: active ? 0.4 : 0,
-				buttonColor: props.buttonColor || '#FFFFFF',
-				passiveColor: props.passiveColor || '#FFFFFF',
-				activeColor: props.activeColor || '#13BF11'
-			};
+				buttonPosition: active ? 0.4 : 0
+			});
 
 			_this.handleChange = _this.handleChange.bind(_this);
 			_this.onChange = props.onChange || function () {};
@@ -20912,29 +20920,29 @@
 		}, {
 			key: 'getPointerCoords',
 			value: function getPointerCoords(e) {
-				return {
-					x: e.pageX || e.touches[0].pageX,
-					y: e.pageY || e.touches[0].pageY
-				};
+				return e.pageX || e.touches[0].pageX;
 			}
 		}, {
 			key: 'onPointerDown',
 			value: function onPointerDown(e) {
-				this.touchDown = this.getPointerCoords(e.nativeEvent).x - parseInt(e.target.style.left, 10);
+				stopEvent(e);
+				this.touchDown = this.getPointerCoords(e.nativeEvent) - parseInt(e.target.style.left, 10);
 				window.addEventListener('ontouchend' in window ? 'touchend' : 'mouseup', this.onDragEnd);
-				if ('onmouseout' in window) e.target.addEventListener('mouseout', this.onDragEnd);
 			}
 		}, {
 			key: 'onDrag',
 			value: function onDrag(e) {
-				e.preventDefault();
 				if (!this.touchDown) return;else this.dragged = true;
+				stopEvent(e);
 
-				var positionNow = this.getPointerCoords(e.nativeEvent).x;
+				// 0.4 and 0.6 are related to proportions where 1 is the width
+				// 0.4 is the most left point of the buttonPosition
+				// 0.6 is the most right point, so the active color fills the whole background behind the button
+
+				var positionNow = this.getPointerCoords(e.nativeEvent);
 				var diff = (positionNow - this.touchDown) / this.state.width;
-				// o.4 and 0.6 are related to proportions where 1 is the width
-				var max = 0.4;
-				if (diff < 0) diff = 0;else if (diff > max) diff = max;
+				var maxDragDistance = 0.4;
+				if (diff < 0) diff = 0;else if (diff > maxDragDistance) diff = maxDragDistance;
 				var pos = 0.6 + diff;
 
 				this.setState({
@@ -20945,8 +20953,10 @@
 		}, {
 			key: 'onDragEnd',
 			value: function onDragEnd(e) {
+				stopEvent(e);
+				if (!this.touchDown) return;
+
 				window.removeEventListener('ontouchend' in window ? 'touchend' : 'mouseup', this.onDragEnd);
-				if ('onmouseout' in window) e.target.removeEventListener('mouseout', this.onDragEnd);
 				var newState = this.dragged ? this.state.buttonPosition > 0.2 : !this.state.on;
 				this.handleChange(newState);
 				this.touchDown = this.dragged = null;
@@ -20973,10 +20983,7 @@
 
 				return _react2.default.createElement(
 					'div',
-					{
-						/*onClick={this.handleChange}*/
-						style: { position: 'relative', height: 0.6 * this.state.width }
-					},
+					{ style: { position: 'relative', height: 0.6 * this.state.width } },
 					_react2.default.createElement('div', { style: passive }),
 					_react2.default.createElement('div', { style: active }),
 					_react2.default.createElement('div', {
@@ -20984,6 +20991,7 @@
 						onTouchMove: this.onDrag,
 						onTouchStart: this.onPointerDown,
 						onMouseDown: this.onPointerDown,
+						onMouseOut: this.onDragEnd,
 						style: button })
 				);
 			}

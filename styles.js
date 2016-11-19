@@ -3,21 +3,21 @@ const grey = '#CCC';
 
 const offBackground = {
 	top: 0,
-    boxShadow: `inset 0 0 0px 1px ${grey}`,
-    height: 0.6,
+	boxShadow: `inset 0 0 0px 1px ${grey}`,
+	height: 0.6,
 	left: 0,
 	width: 1,
 }
 
 const onBackground = {
 	top: 0,
-    height: 0.6
+	height: 0.6
 }
 
 const buttonStyle = {
-    height: 0.6,
-    width: 0.6,
-    top: 0
+	height: 0.6,
+	width: 0.6,
+	top: 0
 }
 
 const commonStyles = {
